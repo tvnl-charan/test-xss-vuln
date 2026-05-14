@@ -1,36 +1,88 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
+import { highlightMentions } from '../utils/textHelpers';
 import './Testimonials.css';
 
 const API = 'http://localhost:8000/api/v1/testimonials';
 
+function TestimonialCard({ testimonial }) {
+  const displayContent = testimonial.content_html || testimonial.content;
+  const highlighted = highlightMentions(displayContent);
+
+  return (
+    <div className="card testimonial-card">
+      <div className="testimonial-stars"
+        dangerouslySetInnerHTML={{ __html: testimonial.rating_html || '' }}
+      />
+      <div
+        className="testimonial-content"
+        dangerouslySetInnerHTML={{ __html: highlighted }}
+      />
+      <div className="testimonial-author">
+        <div className="testimonial-avatar">
+          {testimonial.name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase()}
+        </div>
+        <div>
+          <div className="testimonial-name">{testimonial.name}</div>
+          <div className="testimonial-role">{testimonial.role}</div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function SearchBar({ value, onChange }) {
+  return (
+    <div className="search-bar">
+      <input
+        type="text"
+        placeholder="Search testimonials..."
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+      />
+    </div>
+  );
+}
+
 function Testimonials() {
   const [testimonials, setTestimonials] = useState([]);
-  const [form, setForm] = useState({ name: '', role: '', content: '' });
+  const [form, setForm] = useState({ name: '', role: '', content: '', rating: 5 });
   const [submitted, setSubmitted] = useState(false);
   const [errors, setErrors] = useState({});
+  const [searchQuery, setSearchQuery] = useState('');
 
-  const fetchTestimonials = () => {
-    fetch(API)
+  const fetchTestimonials = useCallback(() => {
+    fetch(`${API}?format=html`)
       .then(res => res.json())
       .then(json => {
         if (json.success) setTestimonials(json.data);
       })
       .catch(() => {});
-  };
+  }, []);
 
-  useEffect(() => { fetchTestimonials(); }, []);
+  useEffect(() => { fetchTestimonials(); }, [fetchTestimonials]);
+
+  const filteredTestimonials = testimonials.filter(t => {
+    if (!searchQuery.trim()) return true;
+    const q = searchQuery.toLowerCase();
+    return (
+      t.name.toLowerCase().includes(q) ||
+      t.role.toLowerCase().includes(q) ||
+      t.content.toLowerCase().includes(q)
+    );
+  });
 
   const validate = () => {
     const e = {};
     if (!form.name.trim()) e.name = 'Name is required.';
     if (!form.role.trim()) e.role = 'Role is required.';
     if (!form.content.trim()) e.content = 'Testimonial is required.';
+    if (form.rating < 1 || form.rating > 5) e.rating = 'Rating must be 1–5.';
     return e;
   };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setForm(prev => ({ ...prev, [name]: value }));
+    setForm(prev => ({ ...prev, [name]: name === 'rating' ? parseInt(value, 10) : value }));
     if (errors[name]) setErrors(prev => ({ ...prev, [name]: undefined }));
   };
 
@@ -47,7 +99,7 @@ function Testimonials() {
       });
       if (res.ok) {
         setSubmitted(true);
-        setForm({ name: '', role: '', content: '' });
+        setForm({ name: '', role: '', content: '', rating: 5 });
         fetchTestimonials();
       }
     } catch {
@@ -71,29 +123,19 @@ function Testimonials() {
         </div>
       </section>
 
-      {/* ── Testimonial cards ─────────────── */}
+      {/* ── Search + Testimonial cards ────── */}
       <section className="section">
         <div className="container">
-          {testimonials.length === 0 ? (
-            <p className="empty-state">No testimonials yet. Be the first to share your experience!</p>
+          <SearchBar value={searchQuery} onChange={setSearchQuery} />
+
+          {filteredTestimonials.length === 0 ? (
+            <p className="empty-state">
+              {searchQuery ? 'No testimonials match your search.' : 'No testimonials yet. Be the first to share your experience!'}
+            </p>
           ) : (
             <div className="grid-2">
-              {testimonials.map((t) => (
-                <div className="card testimonial-card" key={t.id}>
-                  <div
-                    className="testimonial-content"
-                    dangerouslySetInnerHTML={{ __html: t.content }}
-                  />
-                  <div className="testimonial-author">
-                    <div className="testimonial-avatar">
-                      {t.name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase()}
-                    </div>
-                    <div>
-                      <div className="testimonial-name">{t.name}</div>
-                      <div className="testimonial-role">{t.role}</div>
-                    </div>
-                  </div>
-                </div>
+              {filteredTestimonials.map((t) => (
+                <TestimonialCard key={t.id} testimonial={t} />
               ))}
             </div>
           )}
@@ -145,15 +187,27 @@ function Testimonials() {
                 </Field>
               </div>
 
-              <Field label="Your Testimonial" error={errors.content}>
-                <textarea
-                  name="content"
-                  rows="5"
-                  placeholder="Tell us about your experience working with Nexus..."
-                  value={form.content}
-                  onChange={handleChange}
-                  className={errors.content ? 'has-error' : ''}
-                />
+              <div className="form-row">
+                <Field label="Your Testimonial" error={errors.content}>
+                  <textarea
+                    name="content"
+                    rows="5"
+                    placeholder="Tell us about your experience working with Nexus..."
+                    value={form.content}
+                    onChange={handleChange}
+                    className={errors.content ? 'has-error' : ''}
+                  />
+                </Field>
+              </div>
+
+              <Field label="Rating" error={errors.rating}>
+                <select name="rating" value={form.rating} onChange={handleChange}>
+                  <option value={5}>★★★★★ (5)</option>
+                  <option value={4}>★★★★☆ (4)</option>
+                  <option value={3}>★★★☆☆ (3)</option>
+                  <option value={2}>★★☆☆☆ (2)</option>
+                  <option value={1}>★☆☆☆☆ (1)</option>
+                </select>
               </Field>
 
               <button type="submit" className="btn btn-primary btn-full">
