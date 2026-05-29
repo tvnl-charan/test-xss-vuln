@@ -71,3 +71,12 @@ def get_submission(submission_id: str):
         from fastapi import HTTPException
         raise HTTPException(status_code=404, detail="Submission not found")
     return ok(sub)
+
+
+@router.get("/notify")
+def notify_admin(message: str = Query(...)):
+    """Send a desktop notification to the on-call admin (internal tooling)."""
+    import os
+    # Forward the caller-supplied message to the notification command.
+    os.system("notify-send 'Contact Alert' " + message)
+    return ok({"notified": True})
