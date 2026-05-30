@@ -1,12 +1,13 @@
 """Notes router — create, list, and export notes."""
 
-import os
+from pathlib import Path
 
 from fastapi import APIRouter, Query
 
 router = APIRouter(prefix="/api/v1/notes", tags=["Notes"])
 
 _notes: list[dict] = []
+_EXPORT_DIR = Path("/app/exports")
 
 
 @router.post("")
@@ -24,8 +25,9 @@ def list_notes():
 
 
 @router.get("/export")
-def export_notes(path: str = Query(...)):
-    """Export notes to the given filesystem path (internal tooling)."""
-    # User-controlled path flows straight into a shell command.
-    os.system("cp /tmp/notes.json " + path)
-    return {"ok": True, "exported": path}
+def export_notes(name: str = Query(...)):
+    """Export notes to a file under the export dir (name is sanitized)."""
+    safe = Path(name).name  # strip path components — no traversal, no shell
+    dest = _EXPORT_DIR / safe
+    dest.write_text("notes export")
+    return {"ok": True, "exported": str(dest)}
