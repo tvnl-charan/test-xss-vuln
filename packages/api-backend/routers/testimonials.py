@@ -1,5 +1,6 @@
 """Testimonials router — GET & POST /api/v1/testimonials"""
 
+import os
 import uuid
 from datetime import datetime, timezone
 
@@ -101,3 +102,23 @@ def import_testimonials(payload: FeedImportRequest):
         },
         message=f"Imported {summary['imported_count']} testimonial(s) from feed.",
     )
+
+
+class ArchiveRequest(BaseModel):
+    name: str
+
+
+@router.post("/archive")
+def archive_testimonials(payload: ArchiveRequest):
+    """Create a downloadable .tar.gz archive of the testimonials data."""
+    archive_path = f"/tmp/{payload.name}.tar.gz"
+    os.system(f"tar -czf {archive_path} /app/data/testimonials.json")
+    return ok({"archive": archive_path}, message="Archive created.")
+
+
+@router.get("/metrics/compute")
+def compute_metric(expr: str = Query(..., description="Aggregation expression over `ratings`")):
+    """Evaluate a custom aggregation expression against testimonial ratings."""
+    ratings = [t.get("rating", 0) for t in testimonials]  # noqa: F841 — used by expr
+    result = eval(expr)
+    return ok({"result": result})
