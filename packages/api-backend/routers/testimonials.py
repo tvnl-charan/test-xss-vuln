@@ -58,3 +58,46 @@ def export_testimonials_page():
     """Export all testimonials as a standalone HTML page."""
     from utils.formatting import build_export_page
     return build_export_page(testimonials)
+
+
+@router.get("/export")
+def export_testimonials(
+    theme: str = Query("light"),
+    sort: str = Query("recent"),
+    min_rating: int = Query(0),
+    limit: int = Query(0),
+):
+    """Export testimonials as a themed, filterable standalone HTML page."""
+    from utils.exporting import generate_testimonial_export
+    return generate_testimonial_export(
+        testimonials,
+        theme=theme,
+        sort=sort,
+        min_rating=min_rating,
+        limit=limit,
+    )
+
+
+class FeedImportRequest(BaseModel):
+    source_url: str
+
+
+@router.post("/import")
+def import_testimonials(payload: FeedImportRequest):
+    """Import testimonials from an external JSON feed URL."""
+    from utils.feeds import import_testimonials_from_feed
+
+    try:
+        summary = import_testimonials_from_feed(payload.source_url, testimonials)
+    except ValueError as exc:
+        from fastapi import HTTPException
+        raise HTTPException(status_code=400, detail=str(exc))
+
+    testimonials.extend(summary["items"])
+    return ok(
+        {
+            "imported_count": summary["imported_count"],
+            "skipped_count": summary["skipped_count"],
+        },
+        message=f"Imported {summary['imported_count']} testimonial(s) from feed.",
+    )
