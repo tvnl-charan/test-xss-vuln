@@ -1,5 +1,7 @@
 """Content formatting utilities for testimonials and exports."""
 
+import html
+
 from fastapi.responses import HTMLResponse
 
 
@@ -42,10 +44,12 @@ def build_export_page(testimonials: list[dict]) -> HTMLResponse:
     cards = []
     for t in testimonials:
         rendered = render_testimonial_html(t)
+        name = html.escape(str(t['name']))
+        role = html.escape(str(t['role']))
         card = f"""
         <div class="card">
             <blockquote>{rendered['content_html']}</blockquote>
-            <footer>— {t['name']}, {t['role']} {rendered['rating_html']}</footer>
+            <footer>— {name}, {role} {rendered['rating_html']}</footer>
         </div>"""
         cards.append(card)
 
