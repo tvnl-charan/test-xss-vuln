@@ -6,6 +6,7 @@ can also point the exporter at a custom template they maintain alongside the
 built-in light/dark themes.
 """
 
+import html
 import os
 from datetime import datetime, timezone
 
@@ -45,10 +46,12 @@ def _sort_key(sort: str):
 def _render_card(testimonial: dict) -> str:
     """Render a single testimonial into an export card."""
     rendered = render_testimonial_html(testimonial)
+    name = html.escape(str(testimonial["name"]))
+    role = html.escape(str(testimonial["role"]))
     return (
         '<div class="card">'
         f"<blockquote>{rendered['content_html']}</blockquote>"
-        f"<footer>— {testimonial['name']}, {testimonial['role']} "
+        f"<footer>— {name}, {role} "
         f"{rendered['rating_html']}</footer>"
         "</div>"
     )
