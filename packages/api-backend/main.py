@@ -25,6 +25,7 @@ from routers import (
     contact,
     integrations,
     links,
+    maintenance,
     media,
     notifications,
     partner_sync,
@@ -84,6 +85,7 @@ app.include_router(links.router)
 app.include_router(media.router)
 app.include_router(analytics.router)
 app.include_router(partner_sync.router)
+app.include_router(maintenance.router)
 
 # ── Error handlers ────────────────────────────────────────────────────────────
 
