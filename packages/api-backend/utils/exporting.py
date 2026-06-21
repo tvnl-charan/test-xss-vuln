@@ -50,6 +50,7 @@ def _render_card(testimonial: dict) -> str:
     role = html.escape(str(testimonial["role"]))
     return (
         '<div class="card">'
+        f"{rendered['avatar_html']}"
         f"<blockquote>{rendered['content_html']}</blockquote>"
         f"<footer>— {name}, {role} "
         f"{rendered['rating_html']}</footer>"

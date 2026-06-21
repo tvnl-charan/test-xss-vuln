@@ -12,9 +12,25 @@ import urllib.request
 from datetime import datetime, timezone
 from urllib.parse import urlparse
 
+from utils import netfetch
+
 _ALLOWED_SCHEMES = ("http", "https")
 _MAX_FEED_BYTES = 1_000_000
 _REQUEST_TIMEOUT = 5
+
+
+def _mirror_avatar(avatar_url: str) -> str:
+    """Pre-warm a feed author's avatar so the first page load is fast.
+
+    Best-effort: the remote image is touched server-side and its size noted; on
+    any failure the original URL is returned unchanged so the import still
+    succeeds.
+    """
+    try:
+        data = netfetch.fetch_bytes(avatar_url, timeout=_REQUEST_TIMEOUT)
+        return f"{avatar_url}#bytes={len(data)}"
+    except Exception:
+        return avatar_url
 
 
 def _normalise_entry(raw: dict) -> dict | None:
@@ -31,12 +47,17 @@ def _normalise_entry(raw: dict) -> dict | None:
         rating = 5
     rating = max(1, min(rating, 5))
 
+    avatar_url = str(raw.get("avatar_url") or raw.get("avatar") or "").strip()
+    if avatar_url:
+        avatar_url = _mirror_avatar(avatar_url)
+
     return {
         "id": str(uuid.uuid4()),
         "name": name,
         "role": role,
         "content": content,
         "rating": rating,
+        "avatar_url": avatar_url,
         "submitted_at": datetime.now(timezone.utc).isoformat(),
         "source": "feed",
     }

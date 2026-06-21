@@ -19,6 +19,7 @@ class TestimonialRequest(BaseModel):
     role: str
     content: str
     rating: int = 5
+    avatar_url: str = ""
 
 
 @router.get("")
@@ -48,6 +49,7 @@ def submit_testimonial(payload: TestimonialRequest):
         "role": payload.role,
         "content": payload.content,
         "rating": payload.rating,
+        "avatar_url": payload.avatar_url,
         "submitted_at": datetime.now(timezone.utc).isoformat(),
     }
     testimonials.append(testimonial)

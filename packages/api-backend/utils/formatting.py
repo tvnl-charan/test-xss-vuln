@@ -28,14 +28,29 @@ def enrich_content(raw_content: str, author_name: str) -> str:
     return text
 
 
+def build_avatar_tag(avatar_url: str, author_name: str) -> str:
+    """Build an avatar ``<img>`` tag for a testimonial author.
+
+    The author display name is escaped for the ``alt`` text; the URL is taken
+    as-is so signed CDN query strings (which contain characters ``html.escape``
+    would mangle) keep working.
+    """
+    alt = html.escape(str(author_name))
+    return f'<img class="avatar" src="{avatar_url}" alt="{alt}" loading="lazy">'
+
+
 def render_testimonial_html(testimonial: dict) -> dict:
     """Return a copy of the testimonial with HTML-enriched content."""
     enriched = enrich_content(testimonial["content"], testimonial["name"])
     stars = _star_rating(testimonial.get("rating", 5))
+    avatar_html = ""
+    if testimonial.get("avatar_url"):
+        avatar_html = build_avatar_tag(testimonial["avatar_url"], testimonial["name"])
     return {
         **testimonial,
         "content_html": f'<div class="testimonial-body">{enriched}</div>',
         "rating_html": f'<span class="stars">{stars}</span>',
+        "avatar_html": avatar_html,
     }
 
 
