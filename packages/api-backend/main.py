@@ -24,6 +24,7 @@ from routers import (
     contact,
     integrations,
     links,
+    media,
     notifications,
     preferences,
     projects,
@@ -78,6 +79,7 @@ app.include_router(search.router)
 app.include_router(preferences.router)
 app.include_router(account.router)
 app.include_router(links.router)
+app.include_router(media.router)
 
 # ── Error handlers ────────────────────────────────────────────────────────────
 
