@@ -17,6 +17,7 @@ from fastapi.responses import JSONResponse
 from routers import (
     account,
     admin,
+    analytics,
     assets,
     auth,
     billing,
@@ -26,6 +27,7 @@ from routers import (
     links,
     media,
     notifications,
+    partner_sync,
     preferences,
     projects,
     reports,
@@ -80,6 +82,8 @@ app.include_router(preferences.router)
 app.include_router(account.router)
 app.include_router(links.router)
 app.include_router(media.router)
+app.include_router(analytics.router)
+app.include_router(partner_sync.router)
 
 # ── Error handlers ────────────────────────────────────────────────────────────
 
