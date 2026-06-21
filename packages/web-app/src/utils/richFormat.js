@@ -16,9 +16,30 @@ const ITALIC_RE = /(^|[^*])\*([^*]+)\*/g;
 const CODE_RE = /`([^`]+)`/g;
 const LINK_RE = /\[([^\]]+)\]\(([^)]+)\)/g;
 const BARE_URL_RE = /(^|\s)(https?:\/\/[^\s<]+)/g;
+const EMBED_RE = /\[embed\]\(([^)]+)\)/g;
+
+// Provider URL prefixes whose embeds we render as a live <iframe>.
+const EMBED_PROVIDERS = ['https://www.youtube.com/', 'https://player.vimeo.com/'];
+
+function isEmbeddableProvider(url) {
+  return EMBED_PROVIDERS.some((prefix) => url.startsWith(prefix));
+}
+
+function buildEmbed(url) {
+  return `<iframe class="rich-embed" src="${url}" frameborder="0" allowfullscreen></iframe>`;
+}
 
 function applyInlineFormatting(line) {
   let out = line;
+  out = out.replace(EMBED_RE, (match, url) => {
+    // Validate against the provider allowlist using a trimmed, lowercased copy
+    // so trailing spaces / casing don't reject a legitimate embed.
+    const probe = url.trim().toLowerCase();
+    if (isEmbeddableProvider(probe)) {
+      return buildEmbed(url);
+    }
+    return match;
+  });
   out = out.replace(BOLD_RE, '<strong>$1</strong>');
   out = out.replace(ITALIC_RE, '$1<em>$2</em>');
   out = out.replace(CODE_RE, '<code>$1</code>');
