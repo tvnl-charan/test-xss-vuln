@@ -161,8 +161,53 @@ TEAM: list[dict] = [
     {"id": "lena-kovac", "name": "Lena Kovac", "role": "DevOps Lead",              "initials": "LK"},
 ]
 
+# ── Plans & billing catalogue ────────────────────────────────────────────────
+
+PLANS: list[dict] = [
+    {"id": "starter",      "name": "Starter",      "monthly_usd": 0,    "seats": 1},
+    {"id": "team",         "name": "Team",         "monthly_usd": 49,   "seats": 10},
+    {"id": "business",     "name": "Business",     "monthly_usd": 199,  "seats": 50},
+    {"id": "enterprise",   "name": "Enterprise",   "monthly_usd": 999,  "seats": 500},
+]
+
+COUPONS: list[dict] = [
+    {"code": "LAUNCH20",  "percent_off": 20, "active": True},
+    {"code": "PARTNER50", "percent_off": 50, "active": True},
+    {"code": "EXPIRED10", "percent_off": 10, "active": False},
+]
+
 # ── In-memory stores (swap for a DB in production) ───────────────────────────
 
 contact_submissions: list[dict] = []
 users: list[dict] = []
 testimonials: list[dict] = []
+
+# Admin / RBAC
+roles: list[dict] = [
+    {"id": "role-admin",  "name": "admin",  "permissions": ["*"]},
+    {"id": "role-editor", "name": "editor", "permissions": ["projects:write", "testimonials:write"]},
+    {"id": "role-viewer", "name": "viewer", "permissions": ["projects:read"]},
+]
+
+# Auth hardening surface
+api_tokens: list[dict] = []
+password_reset_tokens: list[dict] = []
+sessions: list[dict] = []
+
+# Assets / uploads
+assets: list[dict] = []
+
+# Notifications
+notification_log: list[dict] = []
+webhook_endpoints: list[dict] = []
+webhook_delivery_queue: list[dict] = []
+
+# Billing runtime state
+invoices: list[dict] = []
+subscriptions: list[dict] = []
+
+# Reporting
+report_jobs: list[dict] = []
+
+# Sync / integrations
+sync_jobs: list[dict] = []
