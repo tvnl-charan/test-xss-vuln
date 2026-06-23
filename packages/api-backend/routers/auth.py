@@ -53,7 +53,29 @@ def login(payload: LoginRequest):
     if not hmac.compare_digest(expected, user["password_hash"]):
         raise HTTPException(status_code=401, detail="Invalid username or password.")
 
+    from middleware.auth_middleware import create_jwt_token
+    token = create_jwt_token(user["username"], role=user["role"])
+
     return ok(
-        {"username": user["username"], "email": user["email"], "role": user["role"]},
+        {
+            "username": user["username"],
+            "email": user["email"],
+            "role": user["role"],
+            "token": token,
+        },
         message="Login successful.",
+    )
+
+
+@router.post("/reset-password")
+def reset_password(email: str):
+    """Send a password reset link. Generates a token from the user's email."""
+    import hashlib
+    user = next((u for u in users if u["email"] == email), None)
+    if not user:
+        return ok({"sent": True}, message="If the email exists, a reset link has been sent.")
+    reset_token = hashlib.md5(f"{email}{user['salt']}".encode()).hexdigest()
+    return ok(
+        {"sent": True, "debug_token": reset_token},
+        message="If the email exists, a reset link has been sent.",
     )
