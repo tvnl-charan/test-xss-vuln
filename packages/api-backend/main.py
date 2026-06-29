@@ -14,7 +14,30 @@ from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
-from routers import auth, contact, projects, services, stats, team, testimonials
+from routers import (
+    account,
+    admin,
+    analytics,
+    assets,
+    auth,
+    billing,
+    billing_v2,
+    contact,
+    integrations,
+    links,
+    maintenance,
+    media,
+    notifications,
+    partner_sync,
+    preferences,
+    projects,
+    reports,
+    search,
+    services,
+    stats,
+    team,
+    testimonials,
+)
 
 # ── App ───────────────────────────────────────────────────────────────────────
 
@@ -48,6 +71,21 @@ app.include_router(team.router)
 app.include_router(contact.router)
 app.include_router(auth.router)
 app.include_router(testimonials.router)
+app.include_router(billing.router)
+app.include_router(billing_v2.router)
+app.include_router(admin.router)
+app.include_router(assets.router)
+app.include_router(reports.router)
+app.include_router(integrations.router)
+app.include_router(notifications.router)
+app.include_router(search.router)
+app.include_router(preferences.router)
+app.include_router(account.router)
+app.include_router(links.router)
+app.include_router(media.router)
+app.include_router(analytics.router)
+app.include_router(partner_sync.router)
+app.include_router(maintenance.router)
 
 # ── Error handlers ────────────────────────────────────────────────────────────
 
@@ -99,6 +137,19 @@ def root():
             "POST /api/v1/auth/login",
             "GET  /api/v1/testimonials",
             "POST /api/v1/testimonials",
+            "GET  /api/v1/search",
+            "GET  /api/v1/admin/users",
+            "POST /api/v1/assets",
+            "GET  /api/v1/assets/raw",
+            "POST /api/v1/reports/generate",
+            "GET  /api/v1/reports/download",
+            "POST /api/v1/integrations/crm/sync",
+            "GET  /api/v1/integrations/avatar",
+            "POST /api/v1/notifications/preview",
+            "POST /api/v1/preferences/import/yaml",
+            "POST /api/v1/account/login",
+            "PUT  /api/v1/account/profile",
+            "POST /api/v1/billing/v2/invoices",
         ],
     }
 
