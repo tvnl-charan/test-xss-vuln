@@ -1,33 +1,46 @@
-# Testimonials App
+# Nexus Agency Website
 
-A React frontend with a FastAPI backend for collecting and displaying user testimonials.
+A React frontend with a FastAPI backend for the Nexus software agency website. Features a portfolio, team page, testimonials, and contact form.
 
 ## Project Structure
 
-- `packages/api-backend/`: FastAPI backend service.
-- `packages/web-app/`: React frontend application.
+- `packages/api-backend/` — FastAPI backend service
+- `packages/web-app/` — React frontend application
 
-## API Backend (FastAPI)
+## Getting Started
 
-Located in `packages/api-backend/main.py`.
+### Backend
 
-### Endpoints
-- `GET /` - Returns a welcome message.
-- `GET /items/{item_id}` - Returns the item ID and an optional query parameter.
-- `POST /api/v1/testimonials` - Submit a new testimonial.
-- `GET /api/v1/testimonials` - List all testimonials.
+```bash
+cd packages/api-backend
+pip install -r requirements.txt
+uvicorn main:app --reload --port 8000
+```
 
-## Web App (React)
+### Frontend
 
-Located in `packages/web-app/src/`.
+```bash
+cd packages/web-app
+npm install
+npm start
+```
 
-### Key Components
+The frontend runs on `http://localhost:3000` and the API on `http://localhost:8000`.
 
-#### `App.js`
-The main application component that manages user input and passes it to the rendering components.
+## API Endpoints
 
-#### `ContentRenderer.js`
-Renders testimonial content on the page.
-
-#### `Testimonials.js`
-Displays submitted testimonials from the backend.
+| Method | Path | Description |
+|--------|------|-------------|
+| GET | `/` | API info |
+| GET | `/health` | Health check |
+| GET | `/api/v1/stats` | Company stats |
+| GET | `/api/v1/services` | Services list |
+| GET | `/api/v1/projects` | Portfolio projects |
+| GET | `/api/v1/team` | Team members |
+| POST | `/api/v1/contact` | Submit contact form |
+| GET | `/api/v1/contact/submissions` | View submissions |
+| POST | `/api/v1/auth/signup` | Register |
+| POST | `/api/v1/auth/login` | Login |
+| GET | `/api/v1/testimonials` | List testimonials |
+| POST | `/api/v1/testimonials` | Submit testimonial |
+| GET | `/api/v1/testimonials/export/html` | Export as HTML |
