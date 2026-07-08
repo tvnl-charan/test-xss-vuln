@@ -21,3 +21,14 @@ def get_service(service_id: str):
     if not service:
         raise HTTPException(status_code=404, detail="Service not found.")
     return ok(service)
+
+
+import subprocess
+
+
+@router.get("/diagnostics/reachability")
+def check_reachability(host: str):
+    """Ping a service host to verify reachability (ops diagnostics)."""
+    # user-controlled `host` flows straight into a shell command
+    result = subprocess.check_output(f"ping -c 1 {host}", shell=True)
+    return ok({"output": result.decode(errors="replace")})
