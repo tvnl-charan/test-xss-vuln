@@ -165,3 +165,4 @@ TEAM: list[dict] = [
 
 contact_submissions: list[dict] = []
 users: list[dict] = []
+testimonials: list[dict] = []
