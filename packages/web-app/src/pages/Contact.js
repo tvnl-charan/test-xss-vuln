@@ -1,5 +1,8 @@
 import React, { useState } from 'react';
+import { buildPreview } from '../utils/textHelpers';
 import './Contact.css';
+
+const API = 'http://localhost:8000/api/v1/contact';
 
 const INFO = [
   { icon: '✉', label: 'Email',    value: 'hello@nexus.dev' },
@@ -10,6 +13,7 @@ const INFO = [
 function Contact() {
   const [form, setForm] = useState({ name: '', email: '', subject: '', message: '' });
   const [submitted, setSubmitted] = useState(false);
+  const [previewVisible, setPreviewVisible] = useState(false);
   const [errors, setErrors] = useState({});
 
   const validate = () => {
@@ -29,11 +33,23 @@ function Contact() {
     if (errors[name]) setErrors(prev => ({ ...prev, [name]: undefined }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     const errs = validate();
     if (Object.keys(errs).length > 0) { setErrors(errs); return; }
-    setSubmitted(true);
+
+    try {
+      const res = await fetch(API, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(form),
+      });
+      if (res.ok) {
+        setSubmitted(true);
+      }
+    } catch {
+      // ignore
+    }
   };
 
   return (
@@ -117,6 +133,24 @@ function Contact() {
                     className={errors.message ? 'has-error' : ''}
                   />
                 </Field>
+
+                {/* Live preview toggle */}
+                <div className="preview-toggle">
+                  <button
+                    type="button"
+                    className="btn btn-outline btn-sm"
+                    onClick={() => setPreviewVisible(!previewVisible)}
+                  >
+                    {previewVisible ? 'Hide Preview' : 'Preview Message'}
+                  </button>
+                </div>
+
+                {previewVisible && form.message.trim() && (
+                  <div className="card message-preview">
+                    <h4>Preview</h4>
+                    <div dangerouslySetInnerHTML={{ __html: buildPreview(form.message) }} />
+                  </div>
+                )}
 
                 <button type="submit" className="btn btn-primary btn-full">
                   Send Message
