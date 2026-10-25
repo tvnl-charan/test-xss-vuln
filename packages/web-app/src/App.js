@@ -7,6 +7,10 @@ import Services from './pages/Services';
 import Work from './pages/Work';
 import Contact from './pages/Contact';
 import Testimonials from './pages/Testimonials';
+import AdminUsers from './pages/AdminUsers';
+import ReportViewer from './pages/ReportViewer';
+import Settings from './pages/Settings';
+import WidgetBridge from './components/WidgetBridge';
 import './App.css';
 
 function App() {
@@ -25,6 +29,10 @@ function App() {
       case 'work':     return <Work />;
       case 'contact':       return <Contact />;
       case 'testimonials':  return <Testimonials />;
+      case 'admin':         return <AdminUsers />;
+      case 'reports':       return <ReportViewer />;
+      case 'settings':      return <Settings />;
+      case 'widget':        return <WidgetBridge />;
       default:              return <Home navigate={navigate} />;
     }
   };

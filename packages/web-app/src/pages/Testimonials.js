@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { highlightMentions } from '../utils/textHelpers';
+import RichTestimonial from '../components/RichTestimonial';
 import './Testimonials.css';
 
 const API = 'http://localhost:8000/api/v1/testimonials';
@@ -135,7 +136,9 @@ function Testimonials() {
           ) : (
             <div className="grid-2">
               {filteredTestimonials.map((t) => (
-                <TestimonialCard key={t.id} testimonial={t} />
+                t.content && t.content.length > 280
+                  ? <RichTestimonial key={t.id} testimonial={t} />
+                  : <TestimonialCard key={t.id} testimonial={t} />
               ))}
             </div>
           )}
